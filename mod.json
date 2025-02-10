@@ -1,0 +1,88 @@
+{
+	"geode": "4.2.0",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074"
+	},
+	"id": "nwo5.scaleinput",
+	"name": "Scale Input",
+	"version": "v1.0.0",
+	"developer": "Nwo5",
+	"description": "Scale input! (and scale shortcut buttons)",
+	"tags": [
+		"editor",
+		"utility",
+		"offline"
+	],
+	"links": {
+		"source": ""
+	},
+	"settings": {
+		"scale-input-enabled": {
+			"type": "bool",
+			"name": "Enable Scale Input",
+			"default": true
+		},
+		"scale-max-characters": {
+			"type": "int",
+			"name": "Max Characters",
+			"description": "Max amount of characters you can type for input. (this mod doesnt add scale hack so setting it really high is kinda pointless but sure ig)",
+			"default": 5,
+			"min": 1,
+			"max": 10,
+			"enable-if": "scale-input-enabled"
+		},
+		"scale-shortcuts-enabled": {
+			"type": "bool",
+			"name": "Enable Scale Shorcuts",
+			"default": true
+		},
+		"x-y-shortcuts-enabled": {
+			"type": "bool",
+			"name": "X/Y Shortcuts",
+			"description": "If false, removes X and Y scale shortcuts and replaces them XY.",
+			"default": true,
+			"enable-if": "scale-shortcuts-enabled"
+		},
+		"shortcut-amount": {
+			"type": "int",
+			"name": "Shortcuts",
+			"description": "Amount of scale shortcuts to have.",
+			"default": 3,
+			"min": 1,
+			"max": 5,
+			"enable-if": "scale-shortcuts-enabled"
+		},
+		"shortcut-one": {
+			"type": "float",
+			"name": "Shortcut One",
+			"default": 0.5,
+			"enable-if": "scale-shortcuts-enabled"
+		},
+		"shortcut-two": {
+			"type": "float",
+			"name": "Shortcut Two",
+			"default": 0.75,
+			"enable-if": "scale-shortcuts-enabled"
+		},
+		"shortcut-three": {
+			"type": "float",
+			"name": "Shortcut Three",
+			"default": 1,
+			"enable-if": "scale-shortcuts-enabled"
+		},
+		"shortcut-four": {
+			"type": "float",
+			"name": "Shortcut Four",
+			"default": 2,
+			"enable-if": "scale-shortcuts-enabled"
+		},
+		"shortcut-five": {
+			"type": "float",
+			"name": "Shortcut Five",
+			"default": 4,
+			"enable-if": "scale-shortcuts-enabled"
+		}
+	}
+}
