@@ -158,7 +158,10 @@ class $modify (ScaleControl, GJScaleControl) {
             }
 
             auto makeShortcut = [&] (float value, int buttonNumber, CCMenu* menu, int scaleType) {
-                std::string string = std::format("{:.2f}", value);
+                std::stringstream stringStream;
+                stringStream << std::fixed << std::setprecision(2) << value;
+                std::string string = stringStream.str();
+
                 string.erase(string.find_last_not_of('0') + 1, std::string::npos);
                 if (string.back() == '.') string.pop_back();
                 if (!(string.find_first_of("0123456789") != std::string::npos)) string = 1;
@@ -354,19 +357,24 @@ class $modify (ScaleControl, GJScaleControl) {
     
     void updateInputValues(bool live, bool force, float forceX, float forceY, CCObject* slider) {
         if (Mod::get()->getSettingValue<bool>("scale-input-enabled")) {
+            // was using std::format but ig old macs dont work like that so chatgpt told me to use stringstream
+
             if (slider == m_sliderXY && m_fields->scaleDefaultInput) {
                 std::string scale;
-
                 if (!force) {
+                    std::stringstream stringStream;   
                     if (live) {
-                        scale = std::format("{:.2f}", std::max(m_changedValueX, m_changedValueY));
+                        stringStream << std::fixed << std::setprecision(2) << std::max(m_changedValueX, m_changedValueY);
                     }
                     else {
-                        scale = std::format("{:.2f}", std::max(m_valueX, m_valueY));
+                        stringStream << std::fixed << std::setprecision(2) << std::max(m_valueX, m_valueY);
                     }
+                    scale = stringStream.str();
                 }
                 else {
-                    scale = std::format("{:.2f}", std::max(forceX, forceY));
+                    std::stringstream stringStream;
+                    stringStream << std::fixed << std::setprecision(2) << std::max(forceX, forceY);
+                    scale = stringStream.str();
                 }
                 scale.erase(scale.find_last_not_of('0') + 1, std::string::npos);
                 if (scale.back() == '.') scale.pop_back();
@@ -375,17 +383,20 @@ class $modify (ScaleControl, GJScaleControl) {
             }
             else if (slider == m_sliderX && m_fields->scaleXInput) {
                 std::string scale;
-                
                 if (!force) {
+                    std::stringstream stringStream;   
                     if (live) {
-                        scale = std::format("{:.2f}", m_changedValueX);
+                        stringStream << std::fixed << std::setprecision(2) << m_changedValueX;
                     }
                     else {
-                        scale = std::format("{:.2f}", m_valueX);
+                        stringStream << std::fixed << std::setprecision(2) << m_valueX;
                     }
+                    scale = stringStream.str();
                 }
                 else {
-                    scale = std::format("{:.2f}", forceX);
+                    std::stringstream stringStream;
+                    stringStream << std::fixed << std::setprecision(2) << forceX;
+                    scale = stringStream.str();
                 }
                 scale.erase(scale.find_last_not_of('0') + 1, std::string::npos);
                 if (scale.back() == '.') scale.pop_back();
@@ -393,19 +404,21 @@ class $modify (ScaleControl, GJScaleControl) {
                 m_fields->scaleXInput->setString(scale, false);
             }
             else if (slider == m_sliderY && m_fields->scaleYInput) {
-
                 std::string scale;
-                
                 if (!force) {
+                    std::stringstream stringStream;   
                     if (live) {
-                        scale = std::format("{:.2f}", m_changedValueY);
+                        stringStream << std::fixed << std::setprecision(2) << m_changedValueY;
                     }
                     else {
-                        scale = std::format("{:.2f}", m_valueY);
+                        stringStream << std::fixed << std::setprecision(2) << m_valueY;
                     }
+                    scale = stringStream.str();
                 }
                 else {
-                    scale = std::format("{:.2f}", forceY);
+                    std::stringstream stringStream;
+                    stringStream << std::fixed << std::setprecision(2) << forceY;
+                    scale = stringStream.str();
                 }
                 scale.erase(scale.find_last_not_of('0') + 1, std::string::npos);
                 if (scale.back() == '.') scale.pop_back();
