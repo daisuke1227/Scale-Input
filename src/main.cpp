@@ -357,7 +357,7 @@ class $modify (ScaleControl, GJScaleControl) {
     
     void updateInputValues(bool live, bool force, float forceX, float forceY, CCObject* slider) {
         if (Mod::get()->getSettingValue<bool>("scale-input-enabled")) {
-            // was using std::format but ig old macs dont work like that so chatgpt told me to use stringstream
+            // was using std::format but ig old macs dont work like that so chatgpt told me to use stringstream so ig it works now
 
             if (slider == m_sliderXY && m_fields->scaleDefaultInput) {
                 std::string scale;
