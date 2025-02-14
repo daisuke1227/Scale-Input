@@ -4,10 +4,9 @@
 
 using namespace geode::prelude;
 
-// so im using something thats "out of line" on windows (valueFromScale), and idk if that means itll work or not, but if someone complains of an error or something because of it ill just add something to check for windows and disable it ig
-
+// so im using something thats "out of line" on windows (valueFromScale), and idk if that means itll work or not, but if someone complains of an error or something because of it ill just add something to check for windows and disable it ig 
 class $modify (ScaleControl, GJScaleControl) {
-    
+
     struct Fields {
         CCLabelBMFont* customScaleDefaultLabel;
         CCLabelBMFont* customScaleXLabel;
@@ -19,11 +18,14 @@ class $modify (ScaleControl, GJScaleControl) {
         CCMenu* xShortcutsMenu;
         CCMenu* yShortcutsMenu;
         float shortcutAlignment;
+        CCNode* clipboardX;
+        CCNode* clipboardY;
+        CCMenu* siderbarMenu;
     };
 
     bool init() {
         if (!GJScaleControl::init()) return false;
-        
+
         if (Mod::get()->getSettingValue<bool>("scale-input-enabled")) {
             // YOU CAN USE CCP FOR CCPOINT?????
             auto scaleDefaultInput = TextInput::create(50, "1.00");
@@ -43,8 +45,10 @@ class $modify (ScaleControl, GJScaleControl) {
 
                         editorUI->scaleXYChanged(input * (m_valueX / scale), input * (m_valueY / scale), m_scaleLocked);
 
-                        m_sliderXY->setValue(valueFromScale(input)); // this doesnt work exactly but idrc since it doesnt effect functionality
                         this->updateLabelXY(input);
+                        m_sliderXY->setValue(valueFromScale(input));
+                        m_valueX = input * (m_valueX / scale);
+                        m_valueY = input * (m_valueY / scale);
                     }
                 }
             });
@@ -60,8 +64,9 @@ class $modify (ScaleControl, GJScaleControl) {
                     if (auto editorUI = EditorUI::get()) {
                         editorUI->scaleXChanged(std::stof(input), m_scaleLocked);
 
-                        m_sliderX->setValue(valueFromScale(std::stof(input)));
                         this->updateLabelX(std::stof(input));
+                        m_sliderX->setValue(valueFromScale(std::stof(input)));
+                        m_valueX = std::stof(input);
                     }
                 }
             });
@@ -77,8 +82,9 @@ class $modify (ScaleControl, GJScaleControl) {
                     if (auto editorUI = EditorUI::get()) {
                         editorUI->scaleYChanged(std::stof(input), m_scaleLocked);
 
-                        m_sliderY->setValue(valueFromScale(std::stof(input)));
                         this->updateLabelY(std::stof(input));
+                        m_sliderY->setValue(valueFromScale(std::stof(input)));
+                        m_valueY = std::stof(input);
                     }
                 }
             });
@@ -225,6 +231,111 @@ class $modify (ScaleControl, GJScaleControl) {
                 m_fields->shortcutAlignment = 0;
             }
         }
+        
+        if (Mod::get()->getSettingValue<bool>("siderbar-menu-enabled") || (Mod::get()->getSettingValue<bool>("scale-copy-paste-menu") && Mod::get()->getSettingValue<bool>("scale-copy-paste-enabled"))) {
+            auto menu = CCMenu::create();
+            menu->setLayout(ColumnLayout::create()
+            ->setGap(3.f)
+            ->setGrowCrossAxis(false)
+            ->setAxisAlignment(AxisAlignment::Start));
+            menu->setContentSize(CCSize(46.75, 153));
+            if (Mod::get()->getSettingValue<bool>("siderbar-position")) {
+                menu->setPosition(ccp(135, 30));
+            }
+            else {
+                menu->setPosition(ccp(-135, 30));
+            }
+            menu->setScale(0.525);
+            menu->setID("scale-sidebar-menu");
+            this->addChild(menu);
+            m_fields->siderbarMenu = menu;
+        }
+        
+        if (Mod::get()->getSettingValue<bool>("siderbar-menu-enabled") || Mod::get()->getSettingValue<bool>("better-lock-enabled")) {
+            m_scaleLockButton->setOpacity(0);
+            m_scaleLockButton->setEnabled(false);
+
+            
+            CCNode* offSprite = CCLabelBMFont::create("OFF", "bigFont.fnt");
+            CCNode* onSprite = CCLabelBMFont::create("ON", "bigFont.fnt");
+            if (Mod::get()->getSettingValue<bool>("lock-use-sprites")) offSprite = CCSprite::create("unlocked.png"_spr);
+            if (Mod::get()->getSettingValue<bool>("lock-use-sprites")) onSprite = CCSprite::create("locked.png"_spr);
+
+            auto toggleButton = CCMenuItemToggler::create(
+            CircleButtonSprite::create(offSprite), CircleButtonSprite::create(onSprite, geode::CircleBaseColor::Blue), 
+            this, menu_selector(GJScaleControl::onToggleLockScale));
+            toggleButton->setID("better-lock-button");
+            
+            if (Mod::get()->getSettingValue<bool>("siderbar-menu-enabled")) {
+                m_fields->siderbarMenu->addChild(toggleButton);
+                m_fields->siderbarMenu->updateLayout();
+            }
+            else {
+                m_scaleLockButton->getParent()->addChild(toggleButton);
+                toggleButton->setScale(0.525);
+            }
+        }
+
+        if (Mod::get()->getSettingValue<bool>("scale-copy-paste-enabled")) {
+            auto clipboard = CCNode::create();
+            auto clipboardX = CCNode::create();
+            auto clipboardY = CCNode::create();
+            m_fields->clipboardX = clipboardX;
+            m_fields->clipboardY = clipboardY;
+            clipboardX->setID("1");
+            clipboardY->setID("1");
+            clipboard->setID("clipboard");
+            clipboard->addChild(clipboardX);
+            clipboard->addChild(clipboardY);
+            this->addChild(clipboard);
+
+            CCNode* copySprite = CCLabelBMFont::create("Copy", "bigFont.fnt");
+            CCNode* pasteSprite = CCLabelBMFont::create("Paste", "bigFont.fnt");
+            if (Mod::get()->getSettingValue<bool>("copy-paste-use-sprites")) copySprite = CCSprite::create("copy.png"_spr);
+            if (Mod::get()->getSettingValue<bool>("copy-paste-use-sprites")) pasteSprite = CCSprite::create("paste.png"_spr);
+            geode::CircleBaseColor copyColor = geode::CircleBaseColor::Pink;
+            geode::CircleBaseColor pasteColor = geode::CircleBaseColor::Cyan;
+            if (Mod::get()->getSettingValue<bool>("copy-paste-swap-colors")) copyColor = geode::CircleBaseColor::Cyan;
+            if (Mod::get()->getSettingValue<bool>("copy-paste-swap-colors")) pasteColor = geode::CircleBaseColor::Pink;
+            
+            auto copyButton = CCMenuItemSpriteExtra::create(
+            CircleButtonSprite::create(copySprite, copyColor),
+            this, menu_selector(ScaleControl::scaleCopy));
+            copyButton->setID("scale-copy-button");
+
+            auto pasteButton = CCMenuItemSpriteExtra::create(
+            CircleButtonSprite::create(pasteSprite, pasteColor),
+            this, menu_selector(ScaleControl::scalePaste));
+            pasteButton->setID("scale-paste-button");
+            
+            if (Mod::get()->getSettingValue<bool>("scale-copy-paste-menu")) {
+                if (!Mod::get()->getSettingValue<bool>("copy-paste-swap-position")) {
+                    m_fields->siderbarMenu->addChild(copyButton);
+                    m_fields->siderbarMenu->addChild(pasteButton);
+                }
+                else {
+                    m_fields->siderbarMenu->addChild(pasteButton);
+                    m_fields->siderbarMenu->addChild(copyButton);
+                }
+                m_fields->siderbarMenu->updateLayout();
+            }
+            else {
+                m_scaleLockButton->getParent()->addChild(copyButton);
+                m_scaleLockButton->getParent()->addChild(pasteButton);
+                copyButton->setScale(0.525);
+                pasteButton->setScale(0.525);
+                copyButton->m_baseScale = 0.525;
+                pasteButton->m_baseScale = 0.525;
+                if (!Mod::get()->getSettingValue<bool>("siderbar-menu-enabled")) {
+                    copyButton->setPosition(ccp(-27.54, 0));
+                    pasteButton->setPosition(ccp(27.54, 0));
+                }
+                else {
+                    copyButton->setPosition(ccp(-13.77, 0));
+                    pasteButton->setPosition(ccp(13.77, 0));
+                }
+            }
+        }
 
         return true;
     }
@@ -246,6 +357,8 @@ class $modify (ScaleControl, GJScaleControl) {
                 this->updateLabelY(input * (m_valueY / scale));
             }
             m_sliderXY->setValue(valueFromScale(input));
+            m_valueX = input * (m_valueX / scale);
+            m_valueY = input * (m_valueY / scale);
         }
     }
 
@@ -260,6 +373,7 @@ class $modify (ScaleControl, GJScaleControl) {
             this->updateInputValues(false, true, input, m_valueY, m_sliderX);
             this->updateLabelX(input);
             m_sliderX->setValue(valueFromScale(input));
+            m_valueX = input;
         }
     }
 
@@ -274,7 +388,46 @@ class $modify (ScaleControl, GJScaleControl) {
             this->updateInputValues(false, true, m_valueX, input, m_sliderY);
             this->updateLabelY(input);
             m_sliderY->setValue(valueFromScale(input));
+            m_valueY = input;
         }
+    }
+
+    void scaleCopy(CCObject* sender) {
+        // this could probably be done in a cleaner way but i have no idea how string stream actually works so-
+        std::stringstream xStream;
+        std::stringstream yStream;
+        std::string x;
+        std::string y;
+        
+        xStream << std::fixed << std::setprecision(2) << m_valueX;
+        x = xStream.str();
+        yStream << std::fixed << std::setprecision(2) << m_valueY;
+        y = yStream.str();
+        
+        x.erase(x.find_last_not_of('0') + 1, std::string::npos);
+        if (x.back() == '.') x.pop_back();
+        y.erase(y.find_last_not_of('0') + 1, std::string::npos);
+        if (y.back() == '.') y.pop_back();
+
+        m_fields->clipboardX->setID(x);
+        m_fields->clipboardY->setID(y);
+    }
+
+    void scalePaste(CCObject* sender) {
+        float x = std::stof(m_fields->clipboardX->getID());
+        float y = std::stof(m_fields->clipboardY->getID());
+
+        EditorUI::get()->scaleXChanged(x, m_scaleLocked);
+        EditorUI::get()->scaleYChanged(y, m_scaleLocked);
+        this->updateInputValues(false, true, x, y, nullptr);
+        this->updateLabelX(x);
+        this->updateLabelX(y);
+        this->updateLabelXY(std::max(x, y));
+        m_sliderX->setValue(valueFromScale(x));
+        m_sliderY->setValue(valueFromScale(y));
+        m_sliderXY->setValue(valueFromScale(std::max(x, y)));
+        m_valueX = x;
+        m_valueY = y;
     }
 
     void checkVisibility() {
@@ -449,4 +602,8 @@ class $modify (ScaleControl, GJScaleControl) {
             this->checkVisibility();
         }
     }
-};  
+   
+    // i really wanna add a "change scale and position multiplier" thing to the scale gui but idk how to only run something with the scale controls are opened (well i do but it isnt found yet for mac)
+    // i remember reading a disscusion saying that buttons dont really need to be found because you already have their addresses with devtools or smth but idk how to use those
+    // well i have the code saved and pretty much done so if the binding gets found ill add the feature
+}; 

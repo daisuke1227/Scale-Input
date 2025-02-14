@@ -6,19 +6,29 @@
 		"mac": "2.2074"
 	},
 	"id": "nwo5.scaleinput",
-	"name": "Scale Input",
-	"version": "v1.0.0",
+	"name": "Scale Input+",
+	"version": "v1.1.0",
 	"developer": "Nwo5",
-	"description": "Scale input! (and scale shortcut buttons)",
+	"description": "Scale input! (and other scale improvements)",
 	"tags": [
 		"editor",
 		"utility",
+		"enhancement",
 		"offline"
 	],
 	"links": {
 		"source": "https://github.com/Nwo5-trg/Scale-Input"
 	},
+	"resources": {
+        "sprites": [
+            "resources/*.png"
+        ]
+    },
 	"settings": {
+		"scale-input-title": {
+			"type": "title",
+			"name": "Scale Input"
+		},
 		"scale-input-enabled": {
 			"type": "bool",
 			"name": "Enable Scale Input",
@@ -32,6 +42,38 @@
 			"min": 1,
 			"max": 10,
 			"enable-if": "scale-input-enabled"
+		},
+		"scale-lock-title": {
+			"type": "title",
+			"name": "Scale Lock"
+		},
+		"siderbar-menu-enabled": {
+			"type": "bool",
+			"name": "Enable Scale Lock Menu",
+			"description": "Adds scale lock to a side menu.",
+			"default": true
+		},
+		"siderbar-position": {
+			"type": "bool",
+			"name": "Siderbar Side",
+			"description": "Also applies to copy/paste menu. True for right, false for left.",
+			"default": true
+		},
+		"better-lock-enabled": {
+			"type": "bool",
+			"name": "Enable New Scale Lock Button",
+			"description": "Uses the lock button from the sidebar menu normally aswell.",
+			"default": false
+		},
+		"lock-use-sprites": {
+			"type": "bool",
+			"name": "Use Sprites",
+			"description": "Use sprites as textures instead of text",
+			"default": true
+		},
+		"scale-shortcuts-title": {
+			"type": "title",
+			"name": "Scale Shortcuts"
 		},
 		"scale-shortcuts-enabled": {
 			"type": "bool",
@@ -83,6 +125,41 @@
 			"name": "Shortcut Five",
 			"default": 4,
 			"enable-if": "scale-shortcuts-enabled"
+		},
+		"scale-copy-paste-title": {
+			"type": "title",
+			"name": "Scale Copy Paste"
+		},
+		"scale-copy-paste-enabled": {
+			"type": "bool",
+			"name": "Enable Scale Copy Paste",
+			"default": true
+		},
+		"scale-copy-paste-menu": {
+			"type": "bool",
+			"name": "Enable Copy Paste Menu",
+			"description": "Enables the 'siderbar menu' and adds the copy paste buttons to it instead of at the top.",
+			"default": true,
+			"enable-if": "scale-copy-paste-enabled"
+		},
+		"copy-paste-use-sprites": {
+			"type": "bool",
+			"name": "Use Sprites",
+			"description": "Use sprites as textures instead of text",
+			"default": true,
+			"enable-if": "scale-copy-paste-enabled"
+		},
+		"copy-paste-swap-colors": {
+			"type": "bool",
+			"name": "Swap Colors",
+			"default": false,
+			"enable-if": "scale-copy-paste-enabled"
+		},
+		"copy-paste-swap-position": {
+			"type": "bool",
+			"name": "Swap Position",
+			"default": false,
+			"enable-if": "scale-copy-paste-enabled"
 		}
 	}
 }
