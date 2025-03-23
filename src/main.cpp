@@ -132,10 +132,6 @@ class $modify (ScaleControl, GJScaleControl) {
             m_fields->scaleDefaultInput = scaleDefaultInput;
             m_fields->scaleXInput = scaleXInput;
             m_fields->scaleYInput = scaleYInput;
-
-            m_sliderX->m_touchLogic->m_thumb->m_pfnSelector = menu_selector(ScaleControl::newSliderChanged);
-            m_sliderY->m_touchLogic->m_thumb->m_pfnSelector = menu_selector(ScaleControl::newSliderChanged);
-            m_sliderXY->m_touchLogic->m_thumb->m_pfnSelector = menu_selector(ScaleControl::newSliderChanged);
         }
         
         if (Mod::get()->getSettingValue<bool>("scale-shortcuts-enabled")) {
@@ -590,8 +586,16 @@ class $modify (ScaleControl, GJScaleControl) {
         }
     }   
 
-    void newSliderChanged(CCObject* sender) {
-        this->updateInputValues(true, false, 0, 0, static_cast<CCNode*>(sender)->getParent()->getParent());
+    void ccTouchMoved(CCTouch* touch, CCEvent* event) {
+        GJScaleControl::ccTouchMoved(touch, event);
+        Slider* slider = nullptr;
+        switch (m_scaleButtonType) {
+            case 0: slider = m_sliderX; break;
+            case 1: slider = m_sliderY; break;
+            case 2: slider = m_sliderXY; break;
+            default: return;
+        }
+        this->updateInputValues(true, false, 0, 0, slider);
     }
     
     void loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states) {
