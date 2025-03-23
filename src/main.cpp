@@ -588,14 +588,16 @@ class $modify (ScaleControl, GJScaleControl) {
 
     void ccTouchMoved(CCTouch* touch, CCEvent* event) {
         GJScaleControl::ccTouchMoved(touch, event);
-        Slider* slider = nullptr;
-        switch (m_scaleButtonType) {
-            case 0: slider = m_sliderX; break;
-            case 1: slider = m_sliderY; break;
-            case 2: slider = m_sliderXY; break;
-            default: return;
+        if (Mod::get()->getSettingValue<bool>("scale-input-enabled")) {
+            Slider* slider = nullptr;
+            switch (m_scaleButtonType) {
+                case 0: slider = m_sliderX; break;
+                case 1: slider = m_sliderY; break;
+                case 2: slider = m_sliderXY; break;
+                default: return;
+            }
+            this->updateInputValues(true, false, 0, 0, slider);
         }
-        this->updateInputValues(true, false, 0, 0, slider);
     }
     
     void loadValues(GameObject* obj, CCArray* objs, gd::unordered_map<int, GameObjectEditorState>& states) {
